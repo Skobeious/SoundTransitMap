@@ -99,44 +99,43 @@ function parseShapes(text, trips, routes) {
 }
 
 function parseStops(text) {
-  // GTFS location_type:
-  //   ''  = platform/stop (what we want)
-  //   '1' = parent station record
-  //   '2' = entrance
-  // Deduplicate by both parent_station AND stop_name so stations shared
-  // between routes (e.g. King Street used by Sounder N + S) appear only once.
-  const seenStation = new Set()
-  const seenName = new Set()
+  // GTFS location_type: '' or '0' = platform, '1' = parent station,
+  // '2' = entrance, '3' = generic node, '4' = boarding area.
+  // We only want '' / '0' rows, then deduplicate so one marker per station.
+  const seenStation = new Set()  // keyed by parent_station code
+  const seenName = new Set()     // keyed by cleaned display name
   const stops = []
 
   for (const row of parseCsv(text)) {
-    if (row.location_type === '1' || row.location_type === '2') continue
+    const lt = row.location_type?.trim()
+    if (lt === '1' || lt === '2' || lt === '3' || lt === '4') continue
 
     const lat = parseFloat(row.stop_lat)
     const lon = parseFloat(row.stop_lon)
     if (isNaN(lat) || isNaN(lon)) continue
 
-    const stationKey = row.parent_station
-    const nameKey = row.stop_name?.trim()
-
-    // Skip if we've already placed a marker for this station or this name
-    if (stationKey && seenStation.has(stationKey)) continue
-    if (nameKey && seenName.has(nameKey)) continue
-
-    if (stationKey) seenStation.add(stationKey)
-    if (nameKey) seenName.add(nameKey)
-
-    // Clean platform/bay info from name
-    const cleanName = nameKey
-      .replace(/\s*[-–]\s*Bay\s*\d+.*$/i, '')
-      .replace(/\s+Bay\s+\d+.*$/i, '')
+    // Clean platform/bay info FIRST so dedup compares display names
+    const rawName = row.stop_name?.trim() ?? ''
+    const cleanName = rawName
+      .replace(/\s*[-–]\s*Bay\s*[\w\d]+.*$/i, '')
+      .replace(/\s+Bay\s+[\w\d]+.*$/i, '')
       .replace(/\s+Stop\s+\S+.*$/i, '')
+      .replace(/\s+Platform\s+\S+.*$/i, '')
       .replace(/\s+NE\s+Bay\s+\d+.*$/i, '')
-      .replace(/\s+Bay\s+\w+.*$/i, '')
       .trim()
 
-    // isStation: no "&" in name → proper rail station (Link/Sounder)
-    // Street intersections ("3rd Ave & Pine St") are T Line / bus platform stops
+    if (!cleanName) continue
+
+    const stationKey = row.parent_station?.trim()
+
+    // Skip if already have a marker for this station or this cleaned name
+    if (stationKey && seenStation.has(stationKey)) continue
+    if (seenName.has(cleanName)) continue
+
+    if (stationKey) seenStation.add(stationKey)
+    seenName.add(cleanName)
+
+    // isStation: no "&" → proper rail station; "&" → street-level stop
     const isStation = !cleanName.includes('&')
 
     stops.push({ stopId: row.stop_id, name: cleanName, lat, lon, isStation })
