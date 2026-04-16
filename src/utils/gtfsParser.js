@@ -126,7 +126,20 @@ function parseStops(text) {
     if (stationKey) seenStation.add(stationKey)
     if (nameKey) seenName.add(nameKey)
 
-    stops.push({ stopId: row.stop_id, name: nameKey, lat, lon })
+    // Clean platform/bay info from name
+    const cleanName = nameKey
+      .replace(/\s*[-–]\s*Bay\s*\d+.*$/i, '')
+      .replace(/\s+Bay\s+\d+.*$/i, '')
+      .replace(/\s+Stop\s+\S+.*$/i, '')
+      .replace(/\s+NE\s+Bay\s+\d+.*$/i, '')
+      .replace(/\s+Bay\s+\w+.*$/i, '')
+      .trim()
+
+    // isStation: has "Station" in name → proper rail station
+    // Otherwise it's a street-level stop (T Line streetcar, bus platform, etc.)
+    const isStation = /station/i.test(cleanName)
+
+    stops.push({ stopId: row.stop_id, name: cleanName, lat, lon, isStation })
   }
 
   return stops

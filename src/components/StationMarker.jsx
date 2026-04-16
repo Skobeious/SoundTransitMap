@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 
-const LABEL_ZOOM = 11  // show names at this zoom and above
+const LABEL_ZOOM = 11   // proper stations show name at this zoom
+const STREET_ZOOM = 14  // street-level stops only appear at high zoom
 
 export default function StationMarker({ stop, apiKey }) {
   const map = useMap()
@@ -12,8 +13,11 @@ export default function StationMarker({ stop, apiKey }) {
     if (!map) return
     if (markerRef.current) return
 
+    // Street-level stops (T Line streetcar etc.) hidden until zoomed right in
+    const dotZoom = stop.isStation ? LABEL_ZOOM : STREET_ZOOM
+
     const marker = L.circleMarker([stop.lat, stop.lon], {
-      radius: 6,
+      radius: stop.isStation ? 6 : 4,
       color: '#fff',
       fillColor: '#0d1020',
       fillOpacity: 1,
@@ -39,14 +43,16 @@ export default function StationMarker({ stop, apiKey }) {
     marker.addTo(map)
     markerRef.current = marker
 
-    // Show/hide label based on zoom
+    // Show/hide marker + label based on zoom
     function updateLabel() {
+      const zoom = map.getZoom()
       const tooltip = marker.getTooltip()
-      if (!tooltip) return
-      if (map.getZoom() >= LABEL_ZOOM) {
-        marker.openTooltip()
+      if (zoom >= dotZoom) {
+        marker.setStyle({ opacity: 1, fillOpacity: 1 })
+        if (tooltip) marker.openTooltip()
       } else {
-        marker.closeTooltip()
+        marker.setStyle({ opacity: 0, fillOpacity: 0 })
+        if (tooltip) marker.closeTooltip()
       }
     }
 
