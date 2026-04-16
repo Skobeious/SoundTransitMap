@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import LoadingOverlay from './components/LoadingOverlay'
 import Header from './components/Header'
 import InfoPanel from './components/InfoPanel'
+import DiagramPage from './components/DiagramPage'
 import { useGtfsStatic } from './hooks/useGtfsStatic'
 import { useVehiclePositions } from './hooks/useVehiclePositions'
 import { LINES } from './utils/lineConfig'
@@ -15,6 +16,7 @@ export default function App() {
   const { data: gtfsData, loading: gtfsLoading, error: gtfsError } = useGtfsStatic()
   const { vehicles, lastUpdated, usingMock } = useVehiclePositions(OBA_KEY, gtfsData)
 
+  const [view, setView] = useState('map')
   const [visibleLines, setVisibleLines] = useState(
     Object.fromEntries(Object.keys(LINES).map(id => [id, true]))
   )
@@ -26,29 +28,35 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      <Header vehicles={vehicles} usingMock={usingMock} />
+      <Header vehicles={vehicles} usingMock={usingMock} view={view} onViewChange={setView} />
       <div className="map-area">
-        <Map
-          gtfsData={gtfsData}
-          vehicles={vehicles}
-          visibleLines={visibleLines}
-          apiKey={OBA_KEY}
-          onSelectVehicle={setSelectedVehicle}
-        />
-        <Sidebar
-          vehicles={vehicles}
-          visibleLines={visibleLines}
-          onToggleLine={toggleLine}
-          lastUpdated={lastUpdated}
-          usingMock={usingMock}
-          gtfsLoading={gtfsLoading}
-          gtfsError={gtfsError}
-        />
-        <InfoPanel
-          vehicle={selectedVehicle}
-          onClose={() => setSelectedVehicle(null)}
-        />
-        <LoadingOverlay visible={gtfsLoading} />
+        {view === 'diagram' ? (
+          <DiagramPage />
+        ) : (
+          <>
+            <Map
+              gtfsData={gtfsData}
+              vehicles={vehicles}
+              visibleLines={visibleLines}
+              apiKey={OBA_KEY}
+              onSelectVehicle={setSelectedVehicle}
+            />
+            <Sidebar
+              vehicles={vehicles}
+              visibleLines={visibleLines}
+              onToggleLine={toggleLine}
+              lastUpdated={lastUpdated}
+              usingMock={usingMock}
+              gtfsLoading={gtfsLoading}
+              gtfsError={gtfsError}
+            />
+            <InfoPanel
+              vehicle={selectedVehicle}
+              onClose={() => setSelectedVehicle(null)}
+            />
+            <LoadingOverlay visible={gtfsLoading} />
+          </>
+        )}
       </div>
     </div>
   )
