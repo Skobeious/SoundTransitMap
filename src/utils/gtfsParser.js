@@ -109,7 +109,7 @@ function parseStops(text) {
     const lon = parseFloat(row.stop_lon)
     if (isNaN(lat) || isNaN(lon)) continue
 
-    const zoneKey = row.zone_id || row.stop_name.toLowerCase().replace(/\s+/g, '')
+    const zoneKey = row.parent_station || row.stop_name.toLowerCase().replace(/\s+/g, '')
     if (!zoneKey) continue
 
     if (!byZone.has(zoneKey)) {
