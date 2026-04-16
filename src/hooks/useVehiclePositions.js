@@ -4,6 +4,9 @@ import { deduplicateShapes } from '../utils/gtfsParser'
 const OBA_BASE = '/api/oba'
 const POLL_INTERVAL = 15000
 
+// Simulation speed multiplier — 60× real-time so trains visibly move on screen
+const SIM_SPEED = 60
+
 // Service config: speed (m/s), headway (seconds), trains per direction
 const SERVICE_CONFIG = {
   '100479': { speedMs: 15, headwaySec: 480,  trainsPerDir: 4, headsigns: ['Federal Way Downtown', 'Lynnwood City Center'] },
@@ -68,7 +71,7 @@ function buildShapeProfiles(gtfsShapes) {
 }
 
 function generateSimulatedVehicles(profiles) {
-  const nowSec = Date.now() / 1000
+  const nowSec = (Date.now() / 1000) * SIM_SPEED
   const vehicles = []
 
   for (const [routeId, { speedMs, headwaySec, trainsPerDir, headsigns }] of Object.entries(SERVICE_CONFIG)) {
@@ -81,7 +84,7 @@ function generateSimulatedVehicles(profiles) {
 
       for (let i = 0; i < trainsPerDir; i++) {
         // Stagger trains evenly across the headway window, offset by direction
-        const timeOffset = (i / trainsPerDir) * headwaySec + dir * headwaySec * 0.5
+        const timeOffset = (i / trainsPerDir) * headwaySec * SIM_SPEED + dir * headwaySec * SIM_SPEED * 0.5
         const distTraveled = ((nowSec + timeOffset) * speedMs) % profile.totalDist
         const pos = positionAtDist(profile, distTraveled)
 
