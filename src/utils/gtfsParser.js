@@ -99,32 +99,32 @@ function parseShapes(text, trips, routes) {
 }
 
 function parseStops(text) {
-  // Each physical station has 2–3 rows (one per direction/platform).
-  // Deduplicate by zone_id (the station code e.g. "C03") which is
-  // unique per station. Average the lat/lon across platforms.
-  const byZone = new Map()
+  // GTFS location_type:
+  //   ''  = platform/stop (what we want)
+  //   '1' = parent station record
+  //   '2' = entrance
+  // Strategy: take only platform rows, deduplicate by parent_station code.
+  // This gives exactly one marker per physical station.
+  const seen = new Set()
+  const stops = []
 
   for (const row of parseCsv(text)) {
+    // Skip parent station records and entrance records
+    if (row.location_type === '1' || row.location_type === '2') continue
+
     const lat = parseFloat(row.stop_lat)
     const lon = parseFloat(row.stop_lon)
     if (isNaN(lat) || isNaN(lon)) continue
 
-    const zoneKey = row.parent_station || row.stop_name.toLowerCase().replace(/\s+/g, '')
-    if (!zoneKey) continue
+    // parent_station is the unique station code (e.g. "N03", "C03")
+    const key = row.parent_station || row.stop_name
+    if (!key || seen.has(key)) continue
+    seen.add(key)
 
-    if (!byZone.has(zoneKey)) {
-      byZone.set(zoneKey, { name: row.stop_name, lats: [], lons: [], stopId: row.stop_id })
-    }
-    byZone.get(zoneKey).lats.push(lat)
-    byZone.get(zoneKey).lons.push(lon)
+    stops.push({ stopId: row.stop_id, name: row.stop_name, lat, lon })
   }
 
-  return [...byZone.values()].map(({ name, lats, lons, stopId }) => ({
-    stopId,
-    name,
-    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
-    lon: lons.reduce((a, b) => a + b, 0) / lons.length,
-  }))
+  return stops
 }
 
 /**
