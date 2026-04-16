@@ -1,5 +1,60 @@
 import { useState } from 'react'
 import { LINES } from '../utils/lineConfig'
+import { SERVICE_FACTS } from '../utils/serviceFacts'
+
+function FactsPanel() {
+  const [open, setOpen] = useState(null)
+  return (
+    <div style={{ marginBottom: '10px' }}>
+      <div style={{ fontSize: '10px', color: '#333', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>
+        About the services
+      </div>
+      {Object.entries(SERVICE_FACTS).map(([key, svc]) => (
+        <div key={key} style={{ marginBottom: '4px' }}>
+          <button
+            onClick={() => setOpen(open === key ? null : key)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '7px',
+              padding: '6px 9px',
+              cursor: 'pointer',
+              color: '#aaa',
+              fontSize: '11px',
+              fontWeight: 600,
+            }}
+          >
+            <span>{svc.label}</span>
+            <span style={{ opacity: 0.4, fontSize: '10px' }}>{open === key ? '▲' : '▼'}</span>
+          </button>
+          {open === key && (
+            <div style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              borderTop: 'none',
+              borderRadius: '0 0 7px 7px',
+              padding: '8px 9px',
+            }}>
+              <div style={{ fontSize: '10px', color: '#555', marginBottom: '5px' }}>
+                {svc.lines.join(' · ')}
+              </div>
+              {svc.facts.map((fact, i) => (
+                <div key={i} style={{ fontSize: '10px', color: '#666', lineHeight: 1.5, display: 'flex', gap: '5px' }}>
+                  <span style={{ color: '#333', flexShrink: 0 }}>·</span>
+                  <span>{fact}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const TYPE_ICON = {
   'light-rail': '🚇',
@@ -141,6 +196,9 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
                 )
               })}
             </div>
+
+            {/* Facts */}
+            <FactsPanel />
 
             {/* Footer */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px' }}>

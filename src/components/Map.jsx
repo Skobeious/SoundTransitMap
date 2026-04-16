@@ -3,25 +3,22 @@ import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { getLineColor, LINES } from '../utils/lineConfig'
 import { deduplicateShapes } from '../utils/gtfsParser'
+import { splitByTunnel } from '../utils/tunnelZones'
 import TrainMarker from './TrainMarker'
 import StationMarker from './StationMarker'
 
 const SEATTLE_CENTER = [47.6062, -122.3321]
 const INITIAL_ZOOM = 12
 const MIN_ZOOM = 11
-// Bounds covering the full Sound Transit service area (Everett → Lakewood)
 const MAX_BOUNDS = [
-  [46.95, -123.0],  // SW corner (south of Lakewood, west of coast)
-  [48.10, -121.8],  // NE corner (north of Everett, east of Cascades)
+  [46.95, -123.0],
+  [48.10, -121.8],
 ]
-
-// Slight offset (in degrees) to visually separate shared-corridor lines
 const OFFSET_STEP = 0.0003
 
 function FitBounds({ shapes }) {
   const map = useMap()
   const fitted = useRef(false)
-
   useEffect(() => {
     if (!shapes || shapes.length === 0 || fitted.current) return
     const allCoords = shapes.flatMap(s => s.coords)
@@ -34,7 +31,6 @@ function FitBounds({ shapes }) {
     ], { padding: [40, 40] })
     fitted.current = true
   }, [shapes, map])
-
   return null
 }
 
@@ -64,31 +60,60 @@ export default function Map({ gtfsData, vehicles, visibleLines, apiKey }) {
         maxZoom={19}
       />
 
-      {/* Route polylines — draw each line slightly offset if shared corridor */}
-      {shapes.map((shape, idx) => {
+      {shapes.map((shape) => {
         if (visibleLines[shape.routeId] === false) return null
         const color = getLineColor(shape.routeId)
-        // Offset lines that share the 1-Line corridor
         const lineIdx = lineIds.indexOf(shape.routeId)
         const offsetCoords = shape.coords.map(([lat, lon]) => [
           lat + lineIdx * OFFSET_STEP * 0.5,
           lon + lineIdx * OFFSET_STEP,
         ])
-        return (
-          <Polyline
-            key={shape.shapeId}
-            positions={offsetCoords}
-            pathOptions={{ color, weight: 6, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }}
-          />
-        )
+        const segments = splitByTunnel(offsetCoords, shape.routeId)
+
+        return segments.map((seg, i) => {
+          if (seg.tunnel) {
+            return [
+              // Glow under tunnel
+              <Polyline
+                key={`${shape.shapeId}-tglow-${i}`}
+                positions={seg.coords}
+                pathOptions={{ color, weight: 10, opacity: 0.08, lineJoin: 'round', lineCap: 'round' }}
+              />,
+              // Solid tunnel base (dimmed)
+              <Polyline
+                key={`${shape.shapeId}-tbase-${i}`}
+                positions={seg.coords}
+                pathOptions={{ color, weight: 4, opacity: 0.35, lineJoin: 'round', lineCap: 'round' }}
+              />,
+              // White dash overlay
+              <Polyline
+                key={`${shape.shapeId}-tdash-${i}`}
+                positions={seg.coords}
+                pathOptions={{ color: '#fff', weight: 2, opacity: 0.4, dashArray: '6 7', lineJoin: 'round', lineCap: 'butt' }}
+              />,
+            ]
+          }
+          return [
+            // Glow layer
+            <Polyline
+              key={`${shape.shapeId}-glow-${i}`}
+              positions={seg.coords}
+              pathOptions={{ color, weight: 14, opacity: 0.12, lineJoin: 'round', lineCap: 'round' }}
+            />,
+            // Solid line
+            <Polyline
+              key={`${shape.shapeId}-line-${i}`}
+              positions={seg.coords}
+              pathOptions={{ color, weight: 5, opacity: 0.95, lineJoin: 'round', lineCap: 'round' }}
+            />,
+          ]
+        })
       })}
 
-      {/* Station markers */}
       {stops.map(stop => (
         <StationMarker key={stop.stopId} stop={stop} apiKey={apiKey} />
       ))}
 
-      {/* Train markers */}
       {vehicles
         .filter(v => visibleLines[v.routeId] !== false)
         .map(v => (
