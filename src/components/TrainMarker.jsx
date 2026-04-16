@@ -17,8 +17,8 @@ export default function TrainMarker({ vehicle }) {
     const icon = L.divIcon({
       className: '',
       html: `<div class="train-icon" style="background:${color};transform:rotate(${vehicle.bearing}deg)">${label}</div>`,
-      iconSize: [32, 18],
-      iconAnchor: [16, 9],
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
       popupAnchor: [0, -10],
     })
 

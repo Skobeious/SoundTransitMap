@@ -99,32 +99,32 @@ function parseShapes(text, trips, routes) {
 }
 
 function parseStops(text) {
-  // All stops in the Sound Transit-only feed are Link stops.
-  // Filter to parent stations only (location_type blank or 0 = stop/platform)
-  // to avoid duplicate entries per direction.
-  const stops = []
-  const seen = new Set()
+  // Each physical station has 2–3 rows (one per direction/platform).
+  // Deduplicate by zone_id (the station code e.g. "C03") which is
+  // unique per station. Average the lat/lon across platforms.
+  const byZone = new Map()
 
   for (const row of parseCsv(text)) {
-    // Skip child stops (platforms) — prefer parent station entries
-    // or deduplicate by stop_name
-    const key = row.stop_name.toLowerCase().replace(/\s+/g, '')
-    if (seen.has(key)) continue
-    seen.add(key)
-
     const lat = parseFloat(row.stop_lat)
     const lon = parseFloat(row.stop_lon)
     if (isNaN(lat) || isNaN(lon)) continue
 
-    stops.push({
-      stopId: row.stop_id,
-      name: row.stop_name,
-      lat,
-      lon,
-    })
+    const zoneKey = row.zone_id || row.stop_name.toLowerCase().replace(/\s+/g, '')
+    if (!zoneKey) continue
+
+    if (!byZone.has(zoneKey)) {
+      byZone.set(zoneKey, { name: row.stop_name, lats: [], lons: [], stopId: row.stop_id })
+    }
+    byZone.get(zoneKey).lats.push(lat)
+    byZone.get(zoneKey).lons.push(lon)
   }
 
-  return stops
+  return [...byZone.values()].map(({ name, lats, lons, stopId }) => ({
+    stopId,
+    name,
+    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+    lon: lons.reduce((a, b) => a + b, 0) / lons.length,
+  }))
 }
 
 /**

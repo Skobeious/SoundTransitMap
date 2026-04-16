@@ -80,21 +80,23 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
                   textAlign: 'left',
                 }}
               >
-                {/* Colour swatch */}
+                {/* Line badge — circular like official Sound Transit branding */}
                 <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '8px',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
                   background: active ? line.color : 'rgba(255,255,255,0.08)',
+                  border: `2px solid ${active ? line.color : 'rgba(255,255,255,0.15)'}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 900,
-                  fontSize: '12px',
+                  fontSize: '13px',
                   color: '#fff',
                   flexShrink: 0,
-                  opacity: active ? 1 : 0.4,
+                  opacity: active ? 1 : 0.35,
                   transition: 'all 0.15s',
+                  fontFamily: 'system-ui, sans-serif',
                 }}>
                   {line.shortName}
                 </div>
