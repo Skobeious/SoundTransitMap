@@ -31,7 +31,7 @@ export default function App() {
       <Header vehicles={vehicles} usingMock={usingMock} view={view} onViewChange={setView} />
       <div className="map-area">
         {view === 'diagram' ? (
-          <DiagramPage />
+          <DiagramPage vehicles={vehicles} />
         ) : (
           <>
             <Map
