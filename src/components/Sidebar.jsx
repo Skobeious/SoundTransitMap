@@ -184,7 +184,7 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
                       {line.shortName}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: '12px', color: active ? '#ddd' : '#444', transition: 'color 0.15s' }}>
+                      <div style={{ fontWeight: 600, fontSize: '12px', color: active ? '#fff' : '#444', transition: 'color 0.15s' }}>
                         {line.name}
                       </div>
                       <div style={{ fontSize: '10px', marginTop: '1px', color: noService ? '#555' : active ? line.color : '#333', transition: 'color 0.15s' }}>
