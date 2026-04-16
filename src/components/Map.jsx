@@ -7,11 +7,11 @@ import { splitByTunnel } from '../utils/tunnelZones'
 import TrainMarker from './TrainMarker'
 import StationMarker from './StationMarker'
 
-const SEATTLE_CENTER = [47.6062, -122.3321]
-const INITIAL_ZOOM = 12
-const MIN_ZOOM = 11
+const SEATTLE_CENTER = [47.4, -122.25]
+const INITIAL_ZOOM = 10
+const MIN_ZOOM = 9
 const MAX_BOUNDS = [
-  [46.95, -123.0],
+  [46.95, -122.6],
   [48.10, -121.8],
 ]
 const OFFSET_STEP = 0.0003

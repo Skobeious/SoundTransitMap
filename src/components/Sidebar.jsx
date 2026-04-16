@@ -6,7 +6,7 @@ function FactsPanel() {
   const [open, setOpen] = useState(null)
   return (
     <div style={{ marginBottom: '10px' }}>
-      <div style={{ fontSize: '10px', color: '#333', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>
+      <div style={{ fontSize: '10px', color: '#555', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>
         About the services
       </div>
       {Object.entries(SERVICE_FACTS).map(([key, svc]) => (
@@ -202,20 +202,6 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
 
             {/* Footer */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px' }}>
-              {usingMock && (
-                <div style={{
-                  fontSize: '10px',
-                  color: '#c8852a',
-                  background: 'rgba(230,126,34,0.08)',
-                  border: '1px solid rgba(230,126,34,0.2)',
-                  borderRadius: '5px',
-                  padding: '5px 7px',
-                  marginBottom: '7px',
-                  lineHeight: 1.4,
-                }}>
-                  Demo · set <code style={{ background: 'rgba(255,255,255,0.07)', padding: '1px 4px', borderRadius: '3px', fontSize: '10px' }}>OBA_API_KEY</code> in Railway for live data
-                </div>
-              )}
               <div style={{ fontSize: '10px', color: '#3a3a3a', display: 'flex', justifyContent: 'space-between' }}>
                 <span>Updated {timeStr}</span>
                 <span>Refreshes every 15s</span>
