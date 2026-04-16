@@ -28,18 +28,20 @@ export const LINES = {
   'SNDR_EV': {
     name: 'N Line',
     shortName: 'N',
-    color: '#4A7FA5',        // darker take on official #9AB6D3 for better contrast
+    color: '#4A7FA5',
     darkColor: '#3a6482',
     description: 'Everett ↔ Seattle (Sounder North)',
     type: 'commuter-rail',
+    peakOnly: true,
   },
   'SNDR_TL': {
     name: 'S Line',
     shortName: 'S',
-    color: '#6B9ABF',        // slightly different shade to distinguish from N Line
+    color: '#6B9ABF',
     darkColor: '#527a9c',
     description: 'Seattle ↔ Tacoma/Lakewood (Sounder South)',
     type: 'commuter-rail',
+    peakOnly: true,
   },
 }
 

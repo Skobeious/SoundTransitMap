@@ -82,7 +82,8 @@ export function useVehiclePositions(apiKey, trips) {
           lon: v.location?.lon ?? 0,
           bearing: v.location?.heading ?? 0,
           status: v.tripStatus?.phase ?? 'IN_PROGRESS',
-          nextStop: v.tripStatus?.nextStop ?? null,
+          nextStop: v.tripStatus?.nextStopName ?? v.tripStatus?.nextStop ?? null,
+          headsign: v.tripStatus?.activeTrip?.tripHeadsign ?? null,
           scheduleAdherence: v.tripStatus?.scheduleDeviation ?? 0,
         }))
 
@@ -120,7 +121,7 @@ function lerp(a, b, t) {
 
 const MOCK_ROUTES = {
   '100479': {
-    // 1 Line: Lynnwood → Federal Way (N to S, simplified waypoints)
+    headsigns: ['Federal Way Downtown', 'Lynnwood City Center'],
     waypoints: [
       [47.8215, -122.2835], // Lynnwood City Center
       [47.7769, -122.2895], // Mountlake Terrace
@@ -144,7 +145,7 @@ const MOCK_ROUTES = {
     trainCount: 7,
   },
   '2LINE': {
-    // 2 Line: Lynnwood → Downtown Redmond (via Bellevue + Eastside)
+    headsigns: ['Downtown Redmond', 'Lynnwood City Center'],
     waypoints: [
       [47.8215, -122.2835], // Lynnwood City Center (shared corridor to Int'l District)
       [47.7327, -122.3219], // Northgate
@@ -159,7 +160,7 @@ const MOCK_ROUTES = {
     trainCount: 4,
   },
   'TLINE': {
-    // T Line: Tacoma Dome ↔ St Joseph (Tacoma streetcar)
+    headsigns: ['St Joseph', 'Tacoma Dome'],
     waypoints: [
       [47.2416, -122.4266], // Tacoma Dome
       [47.2467, -122.4360], // Theater District
@@ -170,7 +171,7 @@ const MOCK_ROUTES = {
     trainCount: 2,
   },
   'SNDR_EV': {
-    // Sounder North (N Line): Everett → Seattle King Street
+    headsigns: ['King Street Station', 'Everett Station'],
     waypoints: [
       [47.9762, -122.2020], // Everett Station
       [47.8760, -122.2630], // Mukilteo Station
@@ -181,7 +182,7 @@ const MOCK_ROUTES = {
     trainCount: 2,
   },
   'SNDR_TL': {
-    // Sounder South (S Line): Seattle → Tacoma Dome / Lakewood
+    headsigns: ['Lakewood Station', 'King Street Station'],
     waypoints: [
       [47.6097, -122.3302], // King Street Station (Seattle)
       [47.5149, -122.2876], // Tukwila Station
@@ -202,7 +203,7 @@ function generateMockVehicles() {
   mockSeed += 0.003 // slowly advance position each call
   const vehicles = []
 
-  for (const [routeId, { waypoints, trainCount }] of Object.entries(MOCK_ROUTES)) {
+  for (const [routeId, { waypoints, trainCount, headsigns }] of Object.entries(MOCK_ROUTES)) {
     const totalPoints = waypoints.length - 1
     for (let i = 0; i < trainCount; i++) {
       const offset = (i / trainCount + mockSeed) % 1
@@ -215,6 +216,8 @@ function generateMockVehicles() {
       const lat = lerp(a[0], b[0], segT)
       const lon = lerp(a[1], b[1], segT)
       const bearing = Math.atan2(b[1] - a[1], b[0] - a[0]) * (180 / Math.PI)
+      // Odd trains head south/east, even head north/west
+      const headsign = headsigns?.[i % 2] ?? null
 
       vehicles.push({
         vehicleId: `mock_${routeId}_${i}`,
@@ -223,6 +226,7 @@ function generateMockVehicles() {
         lat,
         lon,
         bearing,
+        headsign,
         status: 'IN_PROGRESS',
         nextStop: null,
         scheduleAdherence: Math.round((Math.random() - 0.5) * 120),

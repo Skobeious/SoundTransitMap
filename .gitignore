@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# GTFS zip — downloaded fresh at build time via scripts/download-gtfs.js
+public/40_gtfs.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

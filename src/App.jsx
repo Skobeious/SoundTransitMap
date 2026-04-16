@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Map from './components/Map'
 import Sidebar from './components/Sidebar'
+import LoadingOverlay from './components/LoadingOverlay'
 import { useGtfsStatic } from './hooks/useGtfsStatic'
 import { useVehiclePositions } from './hooks/useVehiclePositions'
 import { LINES } from './utils/lineConfig'
@@ -14,7 +15,6 @@ export default function App() {
   const { data: gtfsData, loading: gtfsLoading, error: gtfsError } = useGtfsStatic()
   const { vehicles, lastUpdated, usingMock } = useVehiclePositions(OBA_KEY, gtfsData?.trips)
 
-  // Line visibility toggle — all visible by default
   const [visibleLines, setVisibleLines] = useState(
     Object.fromEntries(Object.keys(LINES).map(id => [id, true]))
   )
@@ -40,6 +40,7 @@ export default function App() {
         gtfsLoading={gtfsLoading}
         gtfsError={gtfsError}
       />
+      <LoadingOverlay visible={gtfsLoading} />
     </div>
   )
 }

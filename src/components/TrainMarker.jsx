@@ -16,10 +16,10 @@ export default function TrainMarker({ vehicle }) {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div class="train-icon" style="background:${color};transform:rotate(${vehicle.bearing}deg)">${label}</div>`,
+      html: `<div class="train-icon" style="background:${color}">${label}</div>`,
       iconSize: [24, 24],
       iconAnchor: [12, 12],
-      popupAnchor: [0, -10],
+      popupAnchor: [0, -14],
     })
 
     if (markerRef.current) {
@@ -27,21 +27,35 @@ export default function TrainMarker({ vehicle }) {
       markerRef.current.setIcon(icon)
     } else {
       const marker = L.marker([vehicle.lat, vehicle.lon], { icon, zIndexOffset: 500 })
+
       const adherence = vehicle.scheduleAdherence
       const adherenceStr = adherence == null
-        ? 'Unknown'
+        ? ''
         : adherence > 60
-          ? `${Math.round(adherence / 60)}m late`
+          ? `🔴 ${Math.round(adherence / 60)}m late`
           : adherence < -60
-            ? `${Math.round(-adherence / 60)}m early`
-            : 'On time'
+            ? `🟡 ${Math.round(-adherence / 60)}m early`
+            : '🟢 On time'
+
+      const headsignRow = vehicle.headsign
+        ? `<div style="color:#333;margin-top:4px">To <strong>${vehicle.headsign}</strong></div>`
+        : ''
+      const nextStopRow = vehicle.nextStop
+        ? `<div style="color:#555;font-size:12px;margin-top:2px">Next: ${vehicle.nextStop}</div>`
+        : ''
+      const scheduleRow = adherenceStr
+        ? `<div style="font-size:12px;margin-top:6px">${adherenceStr}</div>`
+        : ''
 
       marker.bindPopup(`
-        <div>
-          <div style="font-weight:700;color:${color};font-size:14px">${config?.name ?? 'Link'}</div>
-          <div style="color:#555;margin-top:4px">Vehicle ${vehicle.vehicleId.replace('mock_', '')}</div>
-          <div style="margin-top:6px">Schedule: <strong>${adherenceStr}</strong></div>
-          ${vehicle.nextStop ? `<div>Next stop: <strong>${vehicle.nextStop}</strong></div>` : ''}
+        <div style="font-family:system-ui,sans-serif;min-width:140px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div style="width:22px;height:22px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff">${label}</div>
+            <div style="font-weight:700;font-size:14px;color:#111">${config?.name ?? 'Train'}</div>
+          </div>
+          ${headsignRow}
+          ${nextStopRow}
+          ${scheduleRow}
         </div>
       `)
       marker.addTo(map)

@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 
+const LABEL_ZOOM = 13  // show names at this zoom and above
+
 export default function StationMarker({ stop, apiKey }) {
   const map = useMap()
   const markerRef = useRef(null)
@@ -36,6 +38,22 @@ export default function StationMarker({ stop, apiKey }) {
 
     marker.addTo(map)
     markerRef.current = marker
+
+    // Show/hide label based on zoom
+    function updateLabel() {
+      const tooltip = marker.getTooltip()
+      if (!tooltip) return
+      if (map.getZoom() >= LABEL_ZOOM) {
+        marker.openTooltip()
+      } else {
+        marker.closeTooltip()
+      }
+    }
+
+    updateLabel()
+    map.on('zoomend', updateLabel)
+
+    return () => { map.off('zoomend', updateLabel) }
   }, [map, stop, apiKey])
 
   useEffect(() => {
