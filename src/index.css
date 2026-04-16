@@ -67,37 +67,23 @@ body, html, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  font-size: 15px;
+  font-size: 11px;
   font-weight: 900;
   color: white;
-  box-shadow: 0 3px 14px rgba(0,0,0,0.9), 0 0 0 2.5px rgba(255,255,255,0.25);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 0 1.5px rgba(255,255,255,0.2);
   transform-origin: center;
   font-family: system-ui, sans-serif;
   position: relative;
   cursor: pointer;
   transition: transform 0.15s;
+  border: 1.5px solid rgba(255,255,255,0.3);
 }
 
 .train-icon:hover {
-  transform: scale(1.15);
-}
-
-.train-pulse {
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  border: 2.5px solid currentColor;
-  animation: train-pulse 2.5s ease-out infinite;
-  opacity: 0;
-  pointer-events: none;
-}
-
-@keyframes train-pulse {
-  0%   { transform: scale(0.85); opacity: 0.8; }
-  100% { transform: scale(2.0); opacity: 0; }
+  transform: scale(1.3);
 }
 
 /* ── Bottom info panel ── */

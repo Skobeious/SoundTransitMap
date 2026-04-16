@@ -16,11 +16,9 @@ export default function TrainMarker({ vehicle, onSelect }) {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div class="train-icon" style="background:${color};color:${color}">
-               <span class="train-pulse"></span>${label}
-             </div>`,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
+      html: `<div class="train-icon" style="background:${color}">${label}</div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
     })
 
     if (markerRef.current) {

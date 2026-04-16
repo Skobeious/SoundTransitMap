@@ -13,7 +13,7 @@ const OBA_KEY = IS_DEV ? (import.meta.env.VITE_OBA_API_KEY ?? '') : 'server'
 
 export default function App() {
   const { data: gtfsData, loading: gtfsLoading, error: gtfsError } = useGtfsStatic()
-  const { vehicles, lastUpdated, usingMock } = useVehiclePositions(OBA_KEY, gtfsData?.trips)
+  const { vehicles, lastUpdated, usingMock } = useVehiclePositions(OBA_KEY, gtfsData)
 
   const [visibleLines, setVisibleLines] = useState(
     Object.fromEntries(Object.keys(LINES).map(id => [id, true]))
