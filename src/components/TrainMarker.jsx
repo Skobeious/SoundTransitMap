@@ -16,7 +16,7 @@ export default function TrainMarker({ vehicle, onSelect }) {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div class="train-icon" style="background:${color}">${label}</div>`,
+      html: `<div class="train-icon" style="background:${color};width:18px;height:18px;font-size:9px">${label}</div>`,
       iconSize: [18, 18],
       iconAnchor: [9, 9],
     })
