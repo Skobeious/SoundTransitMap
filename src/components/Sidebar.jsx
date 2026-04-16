@@ -113,7 +113,7 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
             </div>
             {!collapsed && (
               <div style={{ fontSize: '11px', color: '#555', marginTop: '1px' }}>
-                {usingMock ? 'Demo' : 'Live'} · {totalTrains} train{totalTrains !== 1 ? 's' : ''}
+                {totalTrains} train{totalTrains !== 1 ? 's' : ''} tracked
               </div>
             )}
           </div>

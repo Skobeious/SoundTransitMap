@@ -7,8 +7,10 @@ import { splitByTunnel } from '../utils/tunnelZones'
 import TrainMarker from './TrainMarker'
 import StationMarker from './StationMarker'
 
-const SEATTLE_CENTER = [47.4, -122.25]
-const INITIAL_ZOOM = 10
+// Centered on Seattle CBD — shows 1 Line, 2 Line, and top of S Line clearly.
+// Users can scroll north to Everett or south to Tacoma.
+const SEATTLE_CENTER = [47.58, -122.28]
+const INITIAL_ZOOM = 11
 const MIN_ZOOM = 9
 const MAX_BOUNDS = [
   [46.95, -122.6],
@@ -120,7 +122,6 @@ export default function Map({ gtfsData, vehicles, visibleLines, apiKey, onSelect
           <TrainMarker key={v.vehicleId} vehicle={v} onSelect={onSelectVehicle} />
         ))}
 
-      {shapes.length > 0 && <FitBounds shapes={shapes} />}
     </MapContainer>
   )
 }
