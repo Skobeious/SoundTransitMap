@@ -31,8 +31,23 @@ export default function Header({ vehicles, usingMock }) {
 
       <div className="header-subtitle">
         {total} train{total !== 1 ? 's' : ''} tracked
-        {usingMock && <span style={{ color: '#c8852a', marginLeft: '8px' }}>· demo mode</span>}
       </div>
+
+      {usingMock && (
+        <div style={{
+          marginLeft: 'auto',
+          background: 'rgba(200,133,42,0.15)',
+          border: '1px solid rgba(200,133,42,0.4)',
+          borderRadius: '5px',
+          padding: '3px 9px',
+          fontSize: '11px',
+          fontWeight: 600,
+          color: '#c8852a',
+          letterSpacing: '0.3px',
+        }}>
+          DEMO — positions simulated
+        </div>
+      )}
     </div>
   )
 }

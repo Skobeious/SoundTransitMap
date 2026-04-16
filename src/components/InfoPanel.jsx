@@ -60,17 +60,18 @@ export default function InfoPanel({ vehicle, onClose }) {
             </div>
 
             {/* Schedule */}
-            {adherenceStr && (
-              <div style={{
-                textAlign: 'right',
-                flexShrink: 0,
-              }}>
-                <div style={{ fontSize: '18px', fontWeight: 700, color: adherenceColor }}>
-                  {adherenceStr}
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              {adherenceStr ? (
+                <>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: adherenceColor }}>{adherenceStr}</div>
+                  <div style={{ fontSize: '10px', color: '#444', marginTop: '2px' }}>schedule</div>
+                </>
+              ) : (
+                <div style={{ fontSize: '10px', color: '#444', lineHeight: 1.5, textAlign: 'right' }}>
+                  Live delays available<br/>with OBA API key
                 </div>
-                <div style={{ fontSize: '10px', color: '#444', marginTop: '2px' }}>schedule</div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
         <button className="info-panel-close" onClick={onClose}>✕</button>

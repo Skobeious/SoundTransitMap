@@ -218,7 +218,7 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
               )}
               <div style={{ fontSize: '10px', color: '#3a3a3a', display: 'flex', justifyContent: 'space-between' }}>
                 <span>Updated {timeStr}</span>
-                <span>15s</span>
+                <span>Refreshes every 15s</span>
               </div>
             </div>
           </div>

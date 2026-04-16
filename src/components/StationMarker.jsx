@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 
-const LABEL_ZOOM = 13  // show names at this zoom and above
+const LABEL_ZOOM = 12  // show names at this zoom and above
 
 export default function StationMarker({ stop, apiKey }) {
   const map = useMap()
@@ -13,11 +13,11 @@ export default function StationMarker({ stop, apiKey }) {
     if (markerRef.current) return
 
     const marker = L.circleMarker([stop.lat, stop.lon], {
-      radius: 5,
+      radius: 6,
       color: '#fff',
-      fillColor: '#1a1a2e',
+      fillColor: '#0d1020',
       fillOpacity: 1,
-      weight: 2,
+      weight: 2.5,
       zIndexOffset: 200,
     })
 
