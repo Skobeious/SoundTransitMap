@@ -3,6 +3,7 @@ import Map from './components/Map'
 import Sidebar from './components/Sidebar'
 import LoadingOverlay from './components/LoadingOverlay'
 import Header from './components/Header'
+import InfoPanel from './components/InfoPanel'
 import { useGtfsStatic } from './hooks/useGtfsStatic'
 import { useVehiclePositions } from './hooks/useVehiclePositions'
 import { LINES } from './utils/lineConfig'
@@ -17,6 +18,7 @@ export default function App() {
   const [visibleLines, setVisibleLines] = useState(
     Object.fromEntries(Object.keys(LINES).map(id => [id, true]))
   )
+  const [selectedVehicle, setSelectedVehicle] = useState(null)
 
   function toggleLine(routeId) {
     setVisibleLines(prev => ({ ...prev, [routeId]: !prev[routeId] }))
@@ -31,6 +33,7 @@ export default function App() {
           vehicles={vehicles}
           visibleLines={visibleLines}
           apiKey={OBA_KEY}
+          onSelectVehicle={setSelectedVehicle}
         />
         <Sidebar
           vehicles={vehicles}
@@ -40,6 +43,10 @@ export default function App() {
           usingMock={usingMock}
           gtfsLoading={gtfsLoading}
           gtfsError={gtfsError}
+        />
+        <InfoPanel
+          vehicle={selectedVehicle}
+          onClose={() => setSelectedVehicle(null)}
         />
         <LoadingOverlay visible={gtfsLoading} />
       </div>

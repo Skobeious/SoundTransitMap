@@ -34,7 +34,7 @@ function FitBounds({ shapes }) {
   return null
 }
 
-export default function Map({ gtfsData, vehicles, visibleLines, apiKey }) {
+export default function Map({ gtfsData, vehicles, visibleLines, apiKey, onSelectVehicle }) {
   const shapes = useMemo(() => {
     if (!gtfsData) return []
     return deduplicateShapes(gtfsData.shapes)
@@ -117,7 +117,7 @@ export default function Map({ gtfsData, vehicles, visibleLines, apiKey }) {
       {vehicles
         .filter(v => visibleLines[v.routeId] !== false)
         .map(v => (
-          <TrainMarker key={v.vehicleId} vehicle={v} />
+          <TrainMarker key={v.vehicleId} vehicle={v} onSelect={onSelectVehicle} />
         ))}
 
       {shapes.length > 0 && <FitBounds shapes={shapes} />}

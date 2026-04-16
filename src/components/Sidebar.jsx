@@ -80,7 +80,7 @@ export default function Sidebar({ vehicles, visibleLines, onToggleLine, lastUpda
     <div style={{
       position: 'absolute',
       top: '12px',
-      right: '12px',
+      left: '12px',
       zIndex: 1000,
       width: collapsed ? 'auto' : '220px',
       fontFamily: 'system-ui, sans-serif',
