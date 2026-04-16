@@ -103,25 +103,30 @@ function parseStops(text) {
   //   ''  = platform/stop (what we want)
   //   '1' = parent station record
   //   '2' = entrance
-  // Strategy: take only platform rows, deduplicate by parent_station code.
-  // This gives exactly one marker per physical station.
-  const seen = new Set()
+  // Deduplicate by both parent_station AND stop_name so stations shared
+  // between routes (e.g. King Street used by Sounder N + S) appear only once.
+  const seenStation = new Set()
+  const seenName = new Set()
   const stops = []
 
   for (const row of parseCsv(text)) {
-    // Skip parent station records and entrance records
     if (row.location_type === '1' || row.location_type === '2') continue
 
     const lat = parseFloat(row.stop_lat)
     const lon = parseFloat(row.stop_lon)
     if (isNaN(lat) || isNaN(lon)) continue
 
-    // parent_station is the unique station code (e.g. "N03", "C03")
-    const key = row.parent_station || row.stop_name
-    if (!key || seen.has(key)) continue
-    seen.add(key)
+    const stationKey = row.parent_station
+    const nameKey = row.stop_name?.trim()
 
-    stops.push({ stopId: row.stop_id, name: row.stop_name, lat, lon })
+    // Skip if we've already placed a marker for this station or this name
+    if (stationKey && seenStation.has(stationKey)) continue
+    if (nameKey && seenName.has(nameKey)) continue
+
+    if (stationKey) seenStation.add(stationKey)
+    if (nameKey) seenName.add(nameKey)
+
+    stops.push({ stopId: row.stop_id, name: nameKey, lat, lon })
   }
 
   return stops
