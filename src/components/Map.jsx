@@ -9,7 +9,7 @@ import StationMarker from './StationMarker'
 
 // Centered on Seattle CBD — shows 1 Line, 2 Line, and top of S Line clearly.
 // Users can scroll north to Everett or south to Tacoma.
-const SEATTLE_CENTER = [47.58, -122.28]
+const SEATTLE_CENTER = [47.58, -122.20]
 const INITIAL_ZOOM = 11
 const MIN_ZOOM = 9
 const MAX_BOUNDS = [
