@@ -27,7 +27,7 @@ app.use('/api/oba', createProxyMiddleware({
 app.use(express.static(join(__dirname, 'dist')))
 
 // SPA fallback
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
 
