@@ -33,23 +33,7 @@ export default function Header({ vehicles, usingMock, view, onViewChange }) {
         {total} train{total !== 1 ? 's' : ''} tracked
       </div>
 
-      <button
-        onClick={() => onViewChange(view === 'map' ? 'diagram' : 'map')}
-        style={{
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: '6px',
-          padding: '4px 12px',
-          color: '#ccc',
-          fontSize: '11px',
-          fontWeight: 600,
-          cursor: 'pointer',
-          fontFamily: 'system-ui, sans-serif',
-          letterSpacing: '0.2px',
-        }}
-      >
-        {view === 'map' ? 'Route Map' : '← Live Map'}
-      </button>
+      {/* Route Map button disabled — coming soon */}
 
       {usingMock && (
         <div style={{
