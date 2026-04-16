@@ -135,9 +135,9 @@ function parseStops(text) {
       .replace(/\s+Bay\s+\w+.*$/i, '')
       .trim()
 
-    // isStation: has "Station" in name → proper rail station
-    // Otherwise it's a street-level stop (T Line streetcar, bus platform, etc.)
-    const isStation = /station/i.test(cleanName)
+    // isStation: no "&" in name → proper rail station (Link/Sounder)
+    // Street intersections ("3rd Ave & Pine St") are T Line / bus platform stops
+    const isStation = !cleanName.includes('&')
 
     stops.push({ stopId: row.stop_id, name: cleanName, lat, lon, isStation })
   }
