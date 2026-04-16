@@ -22,7 +22,7 @@ function primaryColor(s) {
 
 export default function DiagramPage() {
   return (
-    <div style={{ flex: 1, background: BG, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ position: 'absolute', inset: 0, background: BG, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
       {/* Legend */}
       <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', justifyContent: 'center', padding: '20px 20px 8px', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', maxWidth: 900 }}>
