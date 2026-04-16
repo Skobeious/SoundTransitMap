@@ -1,0 +1,142 @@
+import { strFromU8, unzipSync } from 'fflate'
+
+/**
+ * Fetch and parse Sound Transit GTFS static zip.
+ * Returns { shapes, stops, routes, trips }
+ *
+ * We skip stop_times.txt (9.7MB) — since this is the Sound Transit-only feed,
+ * all stops are Link/ST stops and no filtering is needed.
+ */
+export async function fetchAndParseGtfs(zipUrl) {
+  const resp = await fetch(zipUrl)
+  if (!resp.ok) throw new Error(`GTFS fetch failed: ${resp.status}`)
+  const buf = await resp.arrayBuffer()
+  const files = unzipSync(new Uint8Array(buf))
+
+  const getText = (name) => {
+    const f = files[name]
+    if (!f) throw new Error(`${name} not found in GTFS zip`)
+    return strFromU8(f)
+  }
+
+  const routes = parseRoutes(getText('routes.txt'))
+  const trips = parseTrips(getText('trips.txt'))
+  const shapes = parseShapes(getText('shapes.txt'), trips, routes)
+  const stops = parseStops(getText('stops.txt'))
+
+  return { shapes, stops, routes, trips }
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split('\n')
+  const headers = lines[0].replace(/\r/g, '').split(',')
+  return lines.slice(1).map(line => {
+    const vals = line.replace(/\r/g, '').split(',')
+    const obj = {}
+    headers.forEach((h, i) => { obj[h.trim()] = (vals[i] ?? '').trim() })
+    return obj
+  })
+}
+
+function parseRoutes(text) {
+  // Returns Map: route_id → route row
+  // Include: 0 = tram/light rail, 1 = subway/metro, 2 = commuter rail (Sounder)
+  // Exclude: 3 = bus (ST Express, shuttles)
+  const routes = new Map()
+  for (const row of parseCsv(text)) {
+    if (row.route_type === '0' || row.route_type === '1' || row.route_type === '2') {
+      routes.set(row.route_id, row)
+    }
+  }
+  return routes
+}
+
+function parseTrips(text) {
+  const trips = new Map()
+  for (const row of parseCsv(text)) {
+    trips.set(row.trip_id, row)
+  }
+  return trips
+}
+
+function parseShapes(text, trips, routes) {
+  // Find shape_ids used by Link routes
+  const linkShapeIds = new Set()
+  const shapeToRoute = new Map()
+
+  for (const [, trip] of trips) {
+    if (routes.has(trip.route_id) && trip.shape_id) {
+      linkShapeIds.add(trip.shape_id)
+      if (!shapeToRoute.has(trip.shape_id)) {
+        shapeToRoute.set(trip.shape_id, trip.route_id)
+      }
+    }
+  }
+
+  // Parse shape points, group by shape_id
+  const shapePoints = new Map()
+  for (const row of parseCsv(text)) {
+    if (!linkShapeIds.has(row.shape_id)) continue
+    if (!shapePoints.has(row.shape_id)) shapePoints.set(row.shape_id, [])
+    shapePoints.get(row.shape_id).push({
+      lat: parseFloat(row.shape_pt_lat),
+      lon: parseFloat(row.shape_pt_lon),
+      seq: parseInt(row.shape_pt_sequence, 10),
+    })
+  }
+
+  const shapes = []
+  for (const [shapeId, points] of shapePoints) {
+    points.sort((a, b) => a.seq - b.seq)
+    shapes.push({
+      shapeId,
+      routeId: shapeToRoute.get(shapeId),
+      coords: points.map(p => [p.lat, p.lon]),
+    })
+  }
+
+  return shapes
+}
+
+function parseStops(text) {
+  // All stops in the Sound Transit-only feed are Link stops.
+  // Filter to parent stations only (location_type blank or 0 = stop/platform)
+  // to avoid duplicate entries per direction.
+  const stops = []
+  const seen = new Set()
+
+  for (const row of parseCsv(text)) {
+    // Skip child stops (platforms) — prefer parent station entries
+    // or deduplicate by stop_name
+    const key = row.stop_name.toLowerCase().replace(/\s+/g, '')
+    if (seen.has(key)) continue
+    seen.add(key)
+
+    const lat = parseFloat(row.stop_lat)
+    const lon = parseFloat(row.stop_lon)
+    if (isNaN(lat) || isNaN(lon)) continue
+
+    stops.push({
+      stopId: row.stop_id,
+      name: row.stop_name,
+      lat,
+      lon,
+    })
+  }
+
+  return stops
+}
+
+/**
+ * Pick one representative shape per route — the longest (most points = full extent).
+ */
+export function deduplicateShapes(shapes) {
+  const byRoute = new Map()
+  for (const shape of shapes) {
+    const existing = byRoute.get(shape.routeId)
+    if (!existing || shape.coords.length > existing.coords.length) {
+      byRoute.set(shape.routeId, shape)
+    }
+  }
+  return [...byRoute.values()]
+}
