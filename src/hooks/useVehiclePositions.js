@@ -8,11 +8,11 @@ const POLL_INTERVAL = 15000
 const SIM_SPEED = 60
 
 // Service config: speed (m/s), headway (seconds), trains per direction
+// SNDR_EV omitted — its GTFS shape crosses water and looks wrong in simulation
 const SERVICE_CONFIG = {
   '100479': { speedMs: 15, headwaySec: 480,  trainsPerDir: 4, headsigns: ['Federal Way Downtown', 'Lynnwood City Center'] },
   '2LINE':  { speedMs: 13, headwaySec: 480,  trainsPerDir: 3, headsigns: ['Downtown Redmond', 'Lynnwood City Center'] },
   'TLINE':  { speedMs:  6, headwaySec: 720,  trainsPerDir: 1, headsigns: ['St Joseph', 'Tacoma Dome'] },
-  'SNDR_EV':{ speedMs: 22, headwaySec: 3600, trainsPerDir: 1, headsigns: ['King Street Station', 'Everett Station'] },
   'SNDR_TL':{ speedMs: 20, headwaySec: 1800, trainsPerDir: 2, headsigns: ['Lakewood Station', 'King Street Station'] },
 }
 

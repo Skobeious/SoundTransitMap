@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 
-const LABEL_ZOOM = 12  // show names at this zoom and above
+const LABEL_ZOOM = 11  // show names at this zoom and above
 
 export default function StationMarker({ stop, apiKey }) {
   const map = useMap()
